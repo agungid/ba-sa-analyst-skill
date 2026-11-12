@@ -1,68 +1,85 @@
-# BA/SA Analyst Skill
+# Skill Analisis dan Arsitektur Software untuk AI Agent
 
-Skill untuk AI agent agar bisa bekerja seperti Business Analyst (BA) dan System Analyst (SA). Skill ini membantu membuat dokumen analisis kebutuhan software: BRD, PRD, SRS, use case, user story, NFR, ERD, kamus data, dan test plan. Skill mendukung metode Agile, Waterfall, atau hybrid.
+Kumpulan skill untuk AI agent (Antigravity, Claude Code, Claude.ai, atau platform lain yang mendukung instruksi berbasis file) agar bisa bekerja seperti Business Analyst (BA), System Analyst (SA), dan Solution Architect. Skill ini membantu membuat dokumen BRD, PRD, SRS, use case, NFR, ERD, tech spec, dan ADR.
 
-Skill ini dibuat supaya AI tidak "liar". AI akan bertanya dulu sebelum menulis, menandai asumsi dengan `[ASUMSI]`, berhenti saat ada konflik, dan tidak menambah fitur di luar dokumen.
+Tujuannya satu: AI tidak bekerja liar. AI bertanya dulu sebelum menulis, menandai asumsi dengan `[ASUMSI]`, menandai versi yang belum dicek dengan `[VERIFIKASI]`, berhenti saat ada konflik antar dokumen, dan tidak menambah fitur di luar spesifikasi.
 
 ## Isi Repo
 
 ```
 ba-sa-analyst-skill/
-├── README.md                  ← dokumen ini
+├── README.md
 ├── CHANGELOG.md
 ├── LICENSE
-└── ba-sa-analyst/             ← folder skill, yang di-copy ke proyek
-    ├── SKILL.md               ← aturan utama dan alur kerja
-    ├── references/
-    │   ├── brd-template.md    ← contoh BRD terisi (proyek BersihKilat)
-    │   ├── prd-template.md    ← contoh PRD terisi
-    │   ├── srs-template.md    ← contoh SRS terisi
-    │   ├── erd-guidelines.md  ← aturan ERD dan kamus data
-    │   ├── nfr-checklist.md   ← checklist NFR
-    │   └── gaya-bahasa.md     ← panduan gaya penulisan
-    └── scripts/
-        └── test_skill.sh      ← validasi struktur skill
+├── ba-sa-analyst/              ← Skill 1: analisis kebutuhan
+│   ├── SKILL.md
+│   ├── references/
+│   │   ├── brd-template.md
+│   │   ├── prd-template.md
+│   │   ├── srs-template.md
+│   │   ├── erd-guidelines.md
+│   │   ├── nfr-checklist.md
+│   │   └── gaya-bahasa.md
+│   └── scripts/
+│       └── test_skill.sh
+└── solution-architect/         ← Skill 2: desain teknis
+    ├── SKILL.md
+    └── references/
+        ├── tech-spec-template.md
+        ├── adr-template.md
+        └── review-checklist.md
 ```
 
-Folder `ba-sa-analyst/` harus berdiri sendiri. Jangan menaruh README atau contoh hasil di dalamnya.
+Urutan kerja antar skill:
+
+```
+ba-sa-analyst  →  solution-architect  →  (developer, qa-tester: belum dibuat)
+```
+
+Setiap folder skill harus berdiri sendiri. Jangan menaruh README atau contoh hasil di dalam folder skill.
 
 ## Instalasi
 
 ### Antigravity (per proyek)
 
-Salin folder skill ke dalam proyek:
+Salin kedua folder ke dalam proyek:
 
 ```bash
 mkdir -p .agent/skills
 cp -r /path/ke/ba-sa-analyst-skill/ba-sa-analyst .agent/skills/
+cp -r /path/ke/ba-sa-analyst-skill/solution-architect .agent/skills/
 ```
 
-Struktur akhirnya harus seperti ini:
+Struktur akhir di proyek:
 
 ```
 nama-proyek/
 └── .agent/
     └── skills/
-        └── ba-sa-analyst/
-            ├── SKILL.md
-            └── references/
+        ├── ba-sa-analyst/
+        └── solution-architect/
 ```
 
-Kalau Antigravity versimu belum mendukung skills, salin `SKILL.md` ke `.agent/rules/ba-sa-analyst.md`. Dalam mode ini, minta agent membuka file di `references/` secara manual.
+Kalau versi Antigravity kamu belum mendukung skills, salin `SKILL.md` ke `.agent/rules/` dengan nama yang sesuai, lalu minta agent membuka file di `references/` saat dibutuhkan. Nama menu dan lokasi folder bisa berbeda antar versi, jadi cek dokumentasi resmi jika ada yang tidak cocok.
 
 ### Claude Code
 
 ```bash
 # Untuk satu user
-cp -r ba-sa-analyst ~/.claude/skills/
+cp -r ba-sa-analyst solution-architect ~/.claude/skills/
 
 # Untuk satu proyek
-cp -r ba-sa-analyst ./.claude/skills/
+cp -r ba-sa-analyst solution-architect ./.claude/skills/
 ```
 
 ### Claude.ai
 
-Jalankan `zip -r ba-sa-analyst.zip ba-sa-analyst/`, lalu upload lewat pengaturan Skills.
+Buat ZIP per skill, lalu upload lewat pengaturan Skills:
+
+```bash
+zip -r ba-sa-analyst.zip ba-sa-analyst/
+zip -r solution-architect.zip solution-architect/
+```
 
 ### Platform lain
 
@@ -70,60 +87,101 @@ Salin isi `SKILL.md` ke system prompt atau custom instructions, lalu lampirkan f
 
 ## Cara Pakai
 
-Skill ini aktif otomatis saat kamu meminta pekerjaan analisis. Kamu tidak perlu menyebut nama file satu per satu, tapi menyebut nama skill membuat hasilnya lebih pasti.
+### Aturan umum penulisan perintah
 
-### Aturan penulisan perintah
+1. **Aktifkan skill di awal sesi.** Satu perintah cukup, lalu lanjutkan pekerjaan.
+2. **Sebut proyeknya.** "Aplikasi pemesanan laundry", bukan "aplikasi".
+3. **Sebut metodenya.** Agile, Waterfall, atau hybrid. Kalau tidak disebut, AI akan bertanya.
+4. **Berikan data yang sudah pasti.** Angka, harga, dan tenggat mengurangi jumlah `[ASUMSI]`.
+5. **Ikuti urutan dokumen.** BRD, lalu PRD, lalu SRS dan ERD, lalu tech spec dan ADR. Dokumen hilir tidak dibuat tanpa hulunya.
+6. **Simpan dokumen di folder `docs/`** supaya AI bisa membacanya di sesi berikutnya.
 
-1. **Sebut proyeknya.** Contoh: "aplikasi pemesanan laundry", bukan "aplikasi".
-2. **Sebut metodenya.** Agile, Waterfall, atau hybrid. Kalau tidak disebut, AI akan menanyakannya.
-3. **Sebut tujuannya.** Masalah apa yang ingin diselesaikan, kalau sudah tahu.
-4. **Sebut data yang sudah ada.** Angka, harga, atau aturan yang sudah pasti. Ini mengurangi `[ASUMSI]`.
-5. **Satu dokumen per permintaan.** Minta BRD dulu, lalu PRD, lalu SRS. Urutan ini mengikuti dependensi dokumen.
+### Contoh alur lengkap
 
-### Contoh perintah
+**Langkah 1: Aktifkan skill analisis**
 
-**Mengaktifkan skill (dijalankan sekali di awal sesi):**
 ```
 Saya menambahkan skill di folder project ini beserta referencenya.
 Apa kamu bisa membaca dan menerapkan aturannya?
 ```
 
-**Memulai proyek baru:**
+**Langkah 2: Mulai proyek**
+
 ```
 Saya ingin membuat aplikasi pemesanan laundry. Metode Agile.
 ```
 
-**Membuat BRD dengan data lengkap:**
+Agent seharusnya bertanya, misalnya masalah bisnis, pengguna utama, dan batasan. Belum menulis dokumen.
+
+**Langkah 3: Buat BRD dengan data lengkap**
+
 ```
-Buatkan BRD untuk aplikasi pemesanan laundry, metode Waterfall.
+Buatkan BRD untuk aplikasi pemesanan laundry, metode Agile.
 Masalahnya: admin sering salah catat berat cucian dari WhatsApp, sekitar 30% pesanan.
 Tenggat go-live 30 Juni 2027, anggaran maksimal Rp 180 juta.
+Simpan di docs/brd.md.
 ```
 
-**Lanjut ke PRD setelah BRD disetujui:**
+**Langkah 4: Buat PRD dan SRS setelah BRD disetujui**
+
 ```
 BRD sudah disetujui. Buatkan PRD berdasarkan BO-001 sampai BO-003 dan BR-001 sampai BR-003.
+Simpan di docs/prd.md.
 ```
 
-**Memeriksa dokumen yang sudah ada:**
 ```
-Periksa PRD ini dengan checklist di nfr-checklist.md. Tunjukkan NFR yang belum punya target terukur.
+Buatkan SRS dari PRD di docs/prd.md. Sertakan use case untuk setiap FR.
+Simpan di docs/srs.md.
 ```
 
-**Mengajukan perubahan:**
+**Langkah 5: Buat ERD dan periksa NFR**
+
 ```
-Tambahkan fitur pembayaran QRIS ke SRS. Buat Change Request-nya dulu, jangan langsung ubah dokumen.
+Buatkan ERD dan kamus data dari SRS di docs/srs.md, ikuti erd-guidelines.md.
+```
+
+```
+Periksa NFR di docs/prd.md dengan nfr-checklist.md. Tunjukkan NFR yang belum punya target terukur.
+```
+
+**Langkah 6: Pindah ke solution architect**
+
+```
+Pakai skill solution-architect. Dokumen BRD, PRD, SRS, dan ERD ada di folder docs/.
+Baca dulu semuanya, lalu tanyakan hal yang belum jelas sebelum menulis tech spec.
+```
+
+**Langkah 7: Buat ADR dan tech spec setelah pertanyaan dijawab**
+
+```
+Tulis ADR untuk pemilihan database dan backend. Status Proposed.
+```
+
+```
+Tulis tech spec berdasarkan ADR yang sudah Accepted. Tandai versi library yang belum dicek dengan [VERIFIKASI].
+```
+
+### Contoh perintah untuk perubahan
+
+```
+Tambahkan pembayaran QRIS ke SRS. Buat Change Request-nya dulu, jangan langsung ubah dokumen.
+```
+
+```
+Ubah keputusan database di ADR-002. Buat ADR baru yang menggantikan ADR-002, jangan hapus yang lama.
 ```
 
 ## Hasil yang Diharapkan
 
-Hasil untuk perintah "Saya ingin membuat aplikasi pemesanan laundry. Metode Agile." bukan dokumen langsung. Agent seharusnya:
+Agent yang sudah membaca skill biasanya:
 
-1. Mengonfirmasi bahwa metode Agile sudah dicatat.
-2. Mengajukan maksimal 3 pertanyaan, misalnya masalah bisnis yang ingin diselesaikan, pengguna utama, dan batasan anggaran atau waktu.
-3. Belum menulis BRD sebelum pertanyaan itu terjawab, atau melanjutkan dengan asumsi yang diberi label `[ASUMSI]` jika kamu meminta.
+1. Menyebut aturan dari skill saat ditanya, atau langsung berperilaku sesuai aturan.
+2. Mengajukan maksimal tiga pertanyaan sebelum membuat dokumen besar.
+3. Menandai angka yang tidak diberikan pengguna dengan `[ASUMSI]`.
+4. Menandai versi library yang belum diverifikasi dengan `[VERIFIKASI]`.
+5. Menghindari pembuka basa-basi dan kata penguat kosong.
 
-Kalau agent langsung membuat dokumen penuh tanpa bertanya dan tanpa `[ASUMSI]`, berarti skill belum terbaca. Kembali ke bagian Instalasi.
+Kalau agent langsung membuat dokumen penuh tanpa bertanya dan tanpa penanda, skill belum terbaca. Periksa lokasi folder, lalu ulangi perintah aktivasi.
 
 ## Menguji Skill
 
@@ -133,13 +191,11 @@ Kalau agent langsung membuat dokumen penuh tanpa bertanya dan tanpa `[ASUMSI]`, 
 bash .agent/skills/ba-sa-analyst/scripts/test_skill.sh
 ```
 
-Script ini memeriksa keberadaan file, frontmatter `name` yang cocok dengan nama folder, penanda `[ASUMSI]`, dan pola kata khas AI. Hasilnya berupa daftar `[LULUS]` dan `[GAGAL]`.
+Script ini memeriksa keberadaan file, kecocokan `name` di frontmatter dengan nama folder, penanda `[ASUMSI]`, dan pola kata khas AI. Hasilnya berupa daftar `[LULUS]` dan `[GAGAL]`.
 
 Catatan: pemeriksaan pola kata memakai grep, jadi bisa ada false positive. Cek baris yang disebut sebelum memperbaiki.
 
 ### Uji perilaku (manual)
-
-Script tidak bisa menilai apakah AI mengikuti aturan. Jalankan lima uji ini di panel agent:
 
 | Uji | Perintah | Hasil yang diharapkan |
 |---|---|---|
@@ -147,6 +203,7 @@ Script tidak bisa menilai apakah AI mengikuti aturan. Jalankan lima uji ini di p
 | Tidak mengarang | "Waterfall. Anggap datanya lengkap, langsung buat BRD." | Angka yang tidak diberikan ditandai `[ASUMSI]` |
 | Konflik berhenti | "FR-002 bilang Rp 7.000, BR-001 bilang Rp 8.000. Lanjut buat SRS." | AI menandai konflik dan bertanya |
 | Out of scope | "Tambahkan pembayaran QRIS ke SRS." | AI mengingatkan bahwa pembayaran online di luar scope |
+| Versi library | "Buat tech spec dengan stack Node.js dan PostgreSQL." | Versi ditandai `[VERIFIKASI]` atau dicek lewat pencarian |
 | Gaya bahasa | Lihat hasil dokumen apa pun | Tidak ada pembuka basa-basi, istilah teknis tetap bahasa asli dengan keterangan singkat |
 
 ## Pemecahan Masalah
@@ -154,23 +211,31 @@ Script tidak bisa menilai apakah AI mengikuti aturan. Jalankan lima uji ini di p
 | Gejala | Penyebab yang mungkin | Solusi |
 |---|---|---|
 | AI tidak menyebut aturan skill | Skill belum aktif | Cek lokasi folder, lalu jalankan perintah aktivasi di awal sesi |
-| AI menulis dokumen tanpa bertanya | Informasi di perintah sudah dianggap cukup | Tambahkan "tanya dulu sebelum menulis" di perintah |
-| Istilah teknis diterjemahkan | Aturan gaya belum terbaca | Minta: "Ikuti aturan istilah teknis di SKILL.md" |
+| AI menulis dokumen tanpa bertanya | Perintah dianggap sudah lengkap | Tambahkan "tanya dulu sebelum menulis" |
+| Istilah teknis diterjemahkan | Aturan gaya belum terbaca | Minta: "Ikuti aturan istilah teknis di gaya-bahasa.md" |
 | Template tidak diikuti | File di `references/` belum dibaca | Minta: "Baca references/brd-template.md dulu, lalu ikuti strukturnya" |
+| Tech spec menulis versi tanpa `[VERIFIKASI]` | Verifikasi versi belum dijalankan | Minta: "Cek versi terbaru dari dokumentasi resmi lewat pencarian" |
 | Script gagal di Windows | Format baris berbeda | Jalankan lewat Git Bash atau WSL |
 
-Kalau aturan terbaca tapi tetap dilanggar, tambahkan pola pelanggarannya ke bagian "Batasan Perilaku" di `SKILL.md`, lalu uji ulang.
+Kalau aturan terbaca tapi tetap dilanggar, tambahkan pola pelanggarannya ke bagian "Batasan Perilaku" di `SKILL.md` skill yang bersangkutan, lalu uji ulang.
 
 ## Batasan
 
-- Skill ini memandu AI, bukan pengganti keputusan bisnis. Keputusan tetap ada di tangan stakeholder.
+- Skill memandu AI, bukan pengganti keputusan bisnis atau teknis. Keputusan tetap ada di tangan stakeholder dan tim.
 - Contoh di `references/` memakai proyek fiktif BersihKilat. Ganti dengan data proyekmu.
-- Hasil tetap perlu ditinjau manusia, terutama angka, aturan bisnis, dan persetujuan.
-- Nama menu dan lokasi folder Antigravity bisa berubah antar versi. Cek dokumentasi resmi jika ada yang tidak cocok.
+- Hasil tetap perlu ditinjau manusia, terutama angka, aturan bisnis, versi library, dan persetujuan.
+- Skill developer dan qa-tester belum tersedia.
+
+## Roadmap
+
+- [ ] `developer`: menulis kode sesuai tech spec dan ADR
+- [ ] `qa-tester`: membuat test otomatis dari kriteria uji di SRS
+- [ ] `code-reviewer`: meninjau diff terhadap tech spec
+- [ ] Contoh hasil lengkap di folder `examples/`
 
 ## Kontribusi
 
-Silakan buka issue atau pull request. Untuk perubahan besar, jelaskan dulu kasusnya di issue. Setiap perubahan pada `SKILL.md` atau template dicatat di `CHANGELOG.md`.
+Buka issue atau pull request. Untuk perubahan besar, jelaskan dulu kasusnya di issue. Setiap perubahan pada `SKILL.md` atau template dicatat di `CHANGELOG.md`.
 
 ## Lisensi
 
